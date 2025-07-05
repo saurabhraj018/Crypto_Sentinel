@@ -20,7 +20,7 @@ import {
   Typography,
 } from "@material-ui/core";
 
-// Utility: Format numbers
+// Utility: Format numbers with commas
 const numberWithCommas = (x) =>
   x?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
@@ -48,10 +48,9 @@ const CoinsTable = () => {
   const [page, setPage] = useState(1);
   const history = useHistory();
   const classes = useStyles();
-
   const { currency, symbol } = CryptoState();
 
-  // Fetch coin list
+  // Fetch coins from API
   const fetchCoins = async () => {
     setLoading(true);
     try {
@@ -67,17 +66,7 @@ const CoinsTable = () => {
     fetchCoins();
   }, [currency]);
 
-  // Theme
-  const darkTheme = createTheme({
-    palette: {
-      primary: {
-        main: "#fff",
-      },
-      type: "dark",
-    },
-  });
-
-  // Filter by search
+  // Search filter
   const handleSearch = () =>
     coins.filter(
       (coin) =>
@@ -85,22 +74,26 @@ const CoinsTable = () => {
         coin.symbol.toLowerCase().includes(search.toLowerCase())
     );
 
-  // Reset page when search changes
+  // Reset to page 1 on new search
   useEffect(() => {
     setPage(1);
   }, [search]);
 
+  // Dark theme
+  const darkTheme = createTheme({
+    palette: {
+      primary: { main: "#fff" },
+      type: "dark",
+    },
+  });
+
   return (
     <ThemeProvider theme={darkTheme}>
       <Container style={{ textAlign: "center" }}>
-        <Typography
-          variant="h4"
-          style={{ margin: 18, fontFamily: "Montserrat" }}
-        >
+        <Typography variant="h4" style={{ margin: 18, fontFamily: "Montserrat" }}>
           Cryptocurrency Prices by Market Cap
         </Typography>
 
-        {/* Search */}
         <TextField
           label="Search for a Crypto Currency..."
           variant="outlined"
@@ -108,10 +101,9 @@ const CoinsTable = () => {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        {/* Table */}
         <TableContainer>
           {loading ? (
-            <LinearProgress style={{ background: "gold" }} />
+            <LinearProgress style={{ backgroundColor: "gold" }} />
           ) : (
             <Table>
               <TableHead style={{ backgroundColor: "#EEBC1D" }}>
@@ -144,21 +136,10 @@ const CoinsTable = () => {
                         className={classes.row}
                         onClick={() => history.push(`/coins/${row.id}`)}
                       >
-                        <TableCell
-                          component="th"
-                          scope="row"
-                          style={{ display: "flex", gap: 15 }}
-                        >
-                          <img
-                            src={row.image}
-                            alt={row.name}
-                            height="50"
-                            style={{ marginBottom: 10 }}
-                          />
+                        <TableCell component="th" scope="row" style={{ display: "flex", gap: 15 }}>
+                          <img src={row.image} alt={row.name} height="50" style={{ marginBottom: 10 }} />
                           <div style={{ display: "flex", flexDirection: "column" }}>
-                            <span
-                              style={{ textTransform: "uppercase", fontSize: 22 }}
-                            >
+                            <span style={{ textTransform: "uppercase", fontSize: 22 }}>
                               {row.symbol}
                             </span>
                             <span style={{ color: "darkgrey" }}>{row.name}</span>
@@ -181,8 +162,7 @@ const CoinsTable = () => {
                         </TableCell>
 
                         <TableCell align="right">
-                          {symbol}{" "}
-                          {numberWithCommas(row.market_cap.toString().slice(0, -6))} M
+                          {symbol} {numberWithCommas(row.market_cap.toString().slice(0, -6))} M
                         </TableCell>
                       </TableRow>
                     );
@@ -192,7 +172,6 @@ const CoinsTable = () => {
           )}
         </TableContainer>
 
-        {/* Pagination */}
         <Pagination
           count={Math.ceil(handleSearch().length / 10)}
           page={page}
